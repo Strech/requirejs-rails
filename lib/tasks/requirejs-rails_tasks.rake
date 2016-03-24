@@ -174,13 +174,15 @@ OS X Homebrew users can use 'brew install node'.
         requirejs.manifest[module_script_name] = digest_name
         FileUtils.cp built_asset_path, digest_asset_path
 
-        # Create the compressed versions
-        File.open("#{built_asset_path}.gz", 'wb') do |f|
-          zgw = Zlib::GzipWriter.new(f, Zlib::BEST_COMPRESSION)
-          zgw.write built_asset_path.read
-          zgw.close
+        if requirejs.env.gzip?
+          # Create the compressed versions
+          File.open("#{built_asset_path}.gz", 'wb') do |f|
+            zgw = Zlib::GzipWriter.new(f, Zlib::BEST_COMPRESSION)
+            zgw.write built_asset_path.read
+            zgw.close
+          end
+          FileUtils.cp "#{built_asset_path}.gz", "#{digest_asset_path}.gz"
         end
-        FileUtils.cp "#{built_asset_path}.gz", "#{digest_asset_path}.gz"
 
         requirejs.config.manifest_path.open('wb') do |f|
           YAML.dump(requirejs.manifest, f)
